@@ -25,6 +25,12 @@ db.run(`
 )
     `)
 
+app.options('/confirmar', (req, res) => {
+    res.header('Access-Control-Allow-Methods', 'POST'); // Permite POST
+    res.header('Access-Control-Allow-Headers', 'Content-Type'); // Aceita JSON
+    res.status(204).end(); // Responde à pré-requisição
+});
+
 app.post('/confirmar', (req, res) => {
     const { nome, presenca, presente } = req.body
     if (!nome || !presenca) {
