@@ -20,25 +20,25 @@ db.run(`
     CREATE TABLE IF NOT EXISTS confirmacoes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome TEXT NOT NULL,
-    presenca TEXT NOT NULL,
-    presente TEXT
+    fralda TEXT NOT NULL,
+    mimo TEXT
 )
     `)
 
 app.options('/confirmar', (req, res) => {
-    res.header('Access-Control-Allow-Methods', 'POST'); // Permite POST
-    res.header('Access-Control-Allow-Headers', 'Content-Type'); // Aceita JSON
-    res.status(204).end(); // Responde à pré-requisição
+    res.header('Access-Control-Allow-Methods', 'POST');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.status(204).end();
 });
 
 app.post('/confirmar', (req, res) => {
-    const { nome, presenca, presente } = req.body
-    if (!nome || !presenca) {
-        return res.status(400).json({ error: 'Nome e presença são obrigatórios.' })
+    const { nome, fralda, mimo } = req.body
+    if (!nome || !fralda) {
+        return res.status(400).json({ error: 'Nome e tamanho da fralda são obrigatórios.' })
     }
 
-    const sql = 'INSERT INTO confirmacoes (nome, presenca, presente) VALUES (?, ?, ?)'
-    db.run(sql, [nome, presenca, presente || null], function (err) {
+    const sql = 'INSERT INTO confirmacoes (nome, fralda, mimo) VALUES (?, ?, ?)'
+    db.run(sql, [nome, fralda, mimo || null], function (err) {
         if (err) {
             return res.status(500).json({ error: 'Erro ao salvar no banco.' })
         }
@@ -46,8 +46,8 @@ app.post('/confirmar', (req, res) => {
     })
 })
 
-app.get('/presentes', (req, res) => {
-    const sql = 'SELECT nome, presente FROM confirmacoes WHERE presenca = "vou" AND presente IS NOT NULL AND presente != ""';
+app.get('/confirmacoes', (req, res) => {
+    const sql = 'SELECT nome, fralda, mimo FROM confirmacoes'
     db.all(sql, [], (err, rows) => {
         if (err) {
             return res.status(500).json({ error: 'Erro ao consultar banco.' });
