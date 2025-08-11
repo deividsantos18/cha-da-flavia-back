@@ -1,6 +1,7 @@
 const express = require('express')
 const sqlite3 = require('sqlite3').verbose()
 const cors = require('cors')
+const { stringify } = require('csv-stringify')
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -55,6 +56,30 @@ app.get('/confirmacoes', (req, res) => {
         res.json(rows);
     });
 });
+
+app.get('/confirmacoes-csv', (req, res) => {
+    const sql = 'SELECT nome, fralda, mimo FROM confirmacoes'
+
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: 'Erro ao consultar banco.' })
+        }
+
+        const header = ['Nome', 'Fralda', 'Mimo']
+
+        const data = rows.map(row => [row.nome, row.fralda, row.mimo || ''])
+
+        res.setHeader('Content-Type', 'text/csv')
+        res.setHeader('Content-Disposition', 'attachment; filename="confirmacoes.csv"');
+
+        stringify([header, ...data], (err, output) => {
+            if (err) {
+                return res.status(500).send('Erro ao gerar CSV')
+            }
+            res.send(output)
+        })
+    })
+})
 
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
